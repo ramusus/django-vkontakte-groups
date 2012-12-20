@@ -1,0 +1,11 @@
+{% if message %}
+    {{ message }}</br>
+{% endif %}
+
+Bookmarklet: <a href="javascript:(function(){document.body.appendChild(document.createElement('script')).src='{{ STATIC_URL }}vkontakte_groups/bookmarklet.js';})();">Vkontakte groups statistic</a>
+
+<form action="#" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Import" />
+</form>
