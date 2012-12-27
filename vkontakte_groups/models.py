@@ -161,15 +161,21 @@ class Group(VkontakteGroupIDModel):
 
         # save stat with time and other fields
         stat.save_final()
-        signals.group_users_updated.send(sender=Group, instance=self, ids=stat.members_ids)
+        signals.group_users_updated.send(sender=Group, instance=self)
 
-    def update_users_m2m(self, ids):
+    def update_users_m2m(self, offset=0):
         '''
         Fetch all users of group, make new m2m relations, remove old m2m relations
         '''
+        stats = self.members_statistics.order_by('-time')
+        if len(stats) == 0:
+            return
+        stat = stats[0]
+        ids = stat.members_ids
         ids_left = set(self.users.values_list('remote_id', flat=True)).difference(set(ids))
 
-        offset = 0
+        offset = offset or stat.offset
+
         while True:
             ids_sliced = ids[offset:offset+1000]
             if len(ids_sliced) == 0:
@@ -188,6 +194,8 @@ class Group(VkontakteGroupIDModel):
                 for user in users:
                     if user.id:
                         self.users.add(user)
+                stat.offset = offset
+                stat.save()
                 offset += 1000
 
         # process left users of group
@@ -221,7 +229,7 @@ class Group(VkontakteGroupIDModel):
                 (3, 'undefined', u'Не указано', self.users.filter(sex=None).count()),
             )
             users['mobile'] = (
-                (1, 'has_mobile',  u'Указали мобильный', self.users.filter(has_mobile=True).count()),
+                (1, 'has_mobile', u'Указали мобильный', self.users.filter(has_mobile=True).count()),
                 (2, 'no_mobile', u'Не указали мобильный', self.users.filter(has_mobile=False).count()),
             )
             users['avatar'] = (
@@ -563,6 +571,7 @@ class GroupStatMembers(models.Model):
 
     def save_final(self):
         self.time = datetime.now()
+        self.offset = 0
         self.clean_members()
         self.update()
         self.save()
