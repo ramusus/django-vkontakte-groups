@@ -175,6 +175,7 @@ class Group(VkontakteGroupIDModel):
         ids_left = set(self.users.values_list('remote_id', flat=True)).difference(set(ids))
 
         offset = offset or stat.offset
+        errors = 0
 
         while True:
             ids_sliced = ids[offset:offset+1000]
@@ -185,7 +186,11 @@ class Group(VkontakteGroupIDModel):
             try:
                 users = User.remote.fetch(ids=ids_sliced, only_expired=True)
             except Exception, e:
-                log.error('Error %s while getting users: "%s", offset %d' % (Exception, e, offset))
+                log.error('Error %s while getting users for group %s: "%s", offset %d' % (e.__class__, self, e, offset))
+                errors += 1
+                if errors == 10:
+                    log.error('Number of errors of while updating users for group %s more than 10, offset %d' % (self, offset))
+                    break
                 continue
 
             if len(users) == 0:
