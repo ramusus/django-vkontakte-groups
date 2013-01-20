@@ -552,12 +552,31 @@ class GroupStatMembers(models.Model):
     members = models.TextField()
     members_entered = models.TextField()
     members_left = models.TextField()
-
     members_deactivated_entered = models.TextField()
     members_deactivated_left = models.TextField()
-
     members_has_avatar_entered = models.TextField()
     members_has_avatar_left = models.TextField()
+
+    members_ids = fields.PickledObjectField()
+    members_entered_ids = fields.PickledObjectField()
+    members_left_ids = fields.PickledObjectField()
+    members_deactivated_entered_ids = fields.PickledObjectField()
+    members_deactivated_left_ids = fields.PickledObjectField()
+    members_has_avatar_entered_ids = fields.PickledObjectField()
+    members_has_avatar_left_ids = fields.PickledObjectField()
+
+    members_count = models.PositiveIntegerField(default=0)
+    members_entered_count = models.PositiveIntegerField(default=0)
+    members_left_count = models.PositiveIntegerField(default=0)
+    members_deactivated_entered_count = models.PositiveIntegerField(default=0)
+    members_deactivated_left_count = models.PositiveIntegerField(default=0)
+    members_has_avatar_entered_count = models.PositiveIntegerField(default=0)
+    members_has_avatar_left_count = models.PositiveIntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        for field_name in ['members','members_entered','members_left','members_deactivated_entered','members_deactivated_left','members_has_avatar_entered','members_has_avatar_left']:
+            setattr(self, field_name + '_count', len(getattr(self, field_name + '_ids')))
+        super(GroupStatMembers, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         '''
@@ -571,8 +590,7 @@ class GroupStatMembers(models.Model):
             next_stat.save()
 
     def add_members(self, ids):
-#        self.members = ','.join(list(set(self.members.split(',') + [str(id) for id in ids])))
-        self.members += ',' + ','.join([str(id) for id in ids])
+        self.members_ids += ids
 
     def save_final(self):
         self.time = datetime.now()
@@ -585,7 +603,7 @@ class GroupStatMembers(models.Model):
         '''
         Remove double and empty values
         '''
-        self.serialize_field('members', set(self.members.split(',')))
+        self.members_ids = list(set(self.members_ids))
 
     def update(self):
         self.update_migration()
@@ -596,52 +614,20 @@ class GroupStatMembers(models.Model):
         if self.group:
             try:
                 prev_stat = self.group.members_statistics.filter(time__lt=self.time).order_by('-time')[0]
-                prev = prev_stat.members.split(',')
-                current = self.members.split(',')
-                self.serialize_field('members_left', set(prev).difference(set(current)))
-                self.serialize_field('members_entered', set(current).difference(set(prev)))
+                prev = prev_stat.members_ids
+                current = self.members_ids
+                self.members_left_ids = list(set(prev).difference(set(current)))
+                self.members_entered_ids = list(set(current).difference(set(prev)))
             except IndexError:
                 pass
 
     def update_deactivated(self):
-        self.serialize_field('members_deactivated_entered', User.objects.deactivated().filter(remote_id__in=self.members_entered_ids))
-        self.serialize_field('members_deactivated_left', User.objects.deactivated().filter(remote_id__in=self.members_left_ids))
+        self.members_deactivated_entered_ids = list(User.objects.deactivated().filter(remote_id__in=self.members_entered_ids).values_list('remote_id', flat=True))
+        self.members_deactivated_left_ids = list(User.objects.deactivated().filter(remote_id__in=self.members_left_ids).values_list('remote_id', flat=True))
 
     def update_with_avatar(self):
-        self.serialize_field('members_has_avatar_entered', User.objects.has_avatars().filter(remote_id__in=self.members_entered_ids))
-        self.serialize_field('members_has_avatar_left', User.objects.has_avatars().filter(remote_id__in=self.members_left_ids))
-
-    def __getattribute__(self, name):
-        if name[-5:] == 'count':
-            # members_entered_count, members_left_count, members_xxx_entered_count, members_xxx_left_count
-            count = getattr(self, name.replace('_count', ''))
-            count = count and count.count(',') + 1 or 0
-            return count
-        elif name[-3:] == 'ids':
-            # members_entered_ids, members_left_ids, members_xxx_entered_ids, members_xxx_left_ids
-            return self.unserialize_field(name.replace('_ids', ''))
-        return models.Model.__getattribute__(self, name)
-
-    def unserialize_field(self, field):
-        value = getattr(self, field)
-        ids = value.split(',') if value else []
-        ids = [int(id) for id in ids if id]
-        return ids
-
-    def serialize_field(self, field, values):
-
-        if isinstance(values, QuerySet):
-            values = list(values.values_list('remote_id', flat=True))
-        elif isinstance(values, set):
-            values = list(values)
-
-        if isinstance(values, list):
-            values = [str(id) for id in values]
-            if '' in values:
-                del values[values.index('')]
-            setattr(self, field, ','.join(values))
-            return True
-        return False
+        self.members_has_avatar_entered_ids = list(User.objects.has_avatars().filter(remote_id__in=self.members_entered_ids).values_list('remote_id', flat=True))
+        self.members_has_avatar_left_ids = list(User.objects.has_avatars().filter(remote_id__in=self.members_left_ids).values_list('remote_id', flat=True))
 
 class VkontakteGroupStatisticRemoteManager(VkontakteManager):
 
