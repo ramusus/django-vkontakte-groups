@@ -557,13 +557,13 @@ class GroupStatMembers(models.Model):
     members_has_avatar_entered = models.TextField()
     members_has_avatar_left = models.TextField()
 
-    members_ids = fields.PickledObjectField()
-    members_entered_ids = fields.PickledObjectField()
-    members_left_ids = fields.PickledObjectField()
-    members_deactivated_entered_ids = fields.PickledObjectField()
-    members_deactivated_left_ids = fields.PickledObjectField()
-    members_has_avatar_entered_ids = fields.PickledObjectField()
-    members_has_avatar_left_ids = fields.PickledObjectField()
+    members_ids = fields.PickledObjectField(default=[])
+    members_entered_ids = fields.PickledObjectField(default=[])
+    members_left_ids = fields.PickledObjectField(default=[])
+    members_deactivated_entered_ids = fields.PickledObjectField(default=[])
+    members_deactivated_left_ids = fields.PickledObjectField(default=[])
+    members_has_avatar_entered_ids = fields.PickledObjectField(default=[])
+    members_has_avatar_left_ids = fields.PickledObjectField(default=[])
 
     members_count = models.PositiveIntegerField(default=0)
     members_entered_count = models.PositiveIntegerField(default=0)
@@ -572,11 +572,6 @@ class GroupStatMembers(models.Model):
     members_deactivated_left_count = models.PositiveIntegerField(default=0)
     members_has_avatar_entered_count = models.PositiveIntegerField(default=0)
     members_has_avatar_left_count = models.PositiveIntegerField(default=0)
-
-    def save(self, *args, **kwargs):
-        for field_name in ['members','members_entered','members_left','members_deactivated_entered','members_deactivated_left','members_has_avatar_entered','members_has_avatar_left']:
-            setattr(self, field_name + '_count', len(getattr(self, field_name + '_ids')))
-        super(GroupStatMembers, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         '''
@@ -609,6 +604,7 @@ class GroupStatMembers(models.Model):
         self.update_migration()
         self.update_deactivated()
         self.update_with_avatar()
+        self.update_counters()
 
     def update_migration(self):
         if self.group:
@@ -628,6 +624,10 @@ class GroupStatMembers(models.Model):
     def update_with_avatar(self):
         self.members_has_avatar_entered_ids = list(User.objects.has_avatars().filter(remote_id__in=self.members_entered_ids).values_list('remote_id', flat=True))
         self.members_has_avatar_left_ids = list(User.objects.has_avatars().filter(remote_id__in=self.members_left_ids).values_list('remote_id', flat=True))
+
+    def update_counters(self):
+        for field_name in ['members','members_entered','members_left','members_deactivated_entered','members_deactivated_left','members_has_avatar_entered','members_has_avatar_left']:
+            setattr(self, field_name + '_count', len(getattr(self, field_name + '_ids')))
 
 class VkontakteGroupStatisticRemoteManager(VkontakteManager):
 
