@@ -585,6 +585,9 @@ class GroupStatMembers(models.Model):
             next_stat.save()
 
     def add_members(self, ids):
+        # strange, but default=[] does not work
+        if isinstance(self.members_ids, str):
+            self.members_ids = []
         self.members_ids += ids
 
     def save_final(self):
