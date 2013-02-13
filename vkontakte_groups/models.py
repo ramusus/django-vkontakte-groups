@@ -113,6 +113,13 @@ class Group(VkontakteGroupIDModel):
         else:
             raise ImproperlyConfigured("Application 'vkontakte_photos' not in INSTALLED_APPS")
 
+    def fetch_topics(self, *args, **kwargs):
+        if 'vkontakte_board' in settings.INSTALLED_APPS:
+            from vkontakte_board.models import Topic
+            return Topic.remote.fetch(group=self, *args, **kwargs)
+        else:
+            raise ImproperlyConfigured("Application 'vkontakte_board' not in INSTALLED_APPS")
+
     def update_statistic(self, api=False):
         '''
         Get html page with statistic charts and parse it
