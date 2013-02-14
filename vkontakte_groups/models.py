@@ -92,6 +92,14 @@ class Group(VkontakteGroupIDModel):
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
 
     @property
+    def topics_comments(self):
+        if 'vkontakte_board' in settings.INSTALLED_APPS:
+            from vkontakte_board.models import Comment
+            return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
+        else:
+            raise ImproperlyConfigured("Application 'vkontakte_board' not in INSTALLED_APPS")
+
+    @property
     def photos(self):
         if 'vkontakte_photos' in settings.INSTALLED_APPS:
             from vkontakte_photos.models import Photo
