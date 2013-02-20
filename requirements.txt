@@ -1,4 +1,2 @@
-simplejson
-factory_boy
 django-vkontakte-api>=0.3.4
 django-vkontakte-users>=0.3.0
