@@ -1,5 +1,7 @@
 # Django Vkontakte Groups
 
+<a href="https://travis-ci.org/ramusus/django-vkontakte-groups" title="Django Vkontakte Groups Travis Status"><img src="https://secure.travis-ci.org/ramusus/django-vkontakte-groups.png"></a>
+
 Приложение позволяет взаимодействовать с группами Вконтакте и их статистикой через Вконтакте API используя стандартные модели Django
 
 ## Установка
