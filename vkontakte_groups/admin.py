@@ -3,14 +3,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext as _
 from vkontakte_api.admin import VkontakteModelAdmin
 from django import forms
-from models import Group, GroupStat
-
-class GroupStatInline(admin.TabularInline):
-    model = GroupStat
-    fields = ('date','visitors','views','likes','comments','shares','new_members','ex_members','members','ads_visitors','ads_members','males','females')
-    readonly_fields = fields
-    extra = 0
-    can_delete = False
+from models import Group
 
 class GroupAdmin(VkontakteModelAdmin):
 
@@ -25,6 +18,5 @@ class GroupAdmin(VkontakteModelAdmin):
     list_filter = ('type','is_closed','is_admin')
 
     exclude = ('users',)
-    inlines = [GroupStatInline]
 
 admin.site.register(Group, GroupAdmin)
