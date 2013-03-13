@@ -4,7 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from models import GroupStat, Group, GroupStatPersentage, VkontakteDeniedAccessError
+from vkontakte_groups_statistic.models import GroupStat, GroupStatPersentage, VkontakteDeniedAccessError
+from models import Group
 from forms import GroupImportStatisticForm, GroupImportPostsForm
 import re
 import logging
@@ -31,6 +32,7 @@ def import_posts(request, redirect_url_name=None, form_class=GroupImportPostsFor
 
     return render_to_response('vkontakte_groups/import_group_posts.html', context, context_instance=RequestContext(request))
 
+# TODO: move these views to vkontakte_groups_statistic app
 def import_statistic(request, redirect_url_name=None, form_class=GroupImportStatisticForm):
 
     context = {

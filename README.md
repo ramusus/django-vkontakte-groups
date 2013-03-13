@@ -1,8 +1,8 @@
 # Django Vkontakte Groups
 
-[![Build Status](https://travis-ci.org/ramusus/django-vkontakte-groups.png?branch=master)](https://travis-ci.org/ramusus/django-vkontakte-groups)
+[![Build Status](https://travis-ci.org/ramusus/django-vkontakte-groups.png?branch=master)](https://travis-ci.org/ramusus/django-vkontakte-groups) [![Coverage Status](https://coveralls.io/repos/ramusus/django-vkontakte-groups/badge.png?branch=master)](https://coveralls.io/r/ramusus/django-vkontakte-groups)
 
-Приложение позволяет взаимодействовать с группами Вконтакте и их статистикой через Вконтакте API используя стандартные модели Django
+Приложение позволяет взаимодействовать с группами Вконтакте, их статистикой и пользователями групп через Вконтакте API используя стандартные модели Django
 
 ## Установка
 
@@ -12,10 +12,19 @@
 
     INSTALLED_APPS = (
         ...
+        'oauth_tokens',
         'vkontakte_api',
-        'vkontakte_users',
         'vkontakte_groups',
     )
+
+    # oauth-tokens settings
+    OAUTH_TOKENS_HISTORY = True                                         # to keep in DB expired access tokens
+    OAUTH_TOKENS_VKONTAKTE_CLIENT_ID = ''                               # application ID
+    OAUTH_TOKENS_VKONTAKTE_CLIENT_SECRET = ''                           # application secret key
+    OAUTH_TOKENS_VKONTAKTE_SCOPE = ['ads,wall,photos,friends,stats']    # application scopes
+    OAUTH_TOKENS_VKONTAKTE_USERNAME = ''                                # user login
+    OAUTH_TOKENS_VKONTAKTE_PASSWORD = ''                                # user password
+    OAUTH_TOKENS_VKONTAKTE_PHONE_END = ''                               # last 4 digits of user mobile phone
 
 ## Примеры использования
 
@@ -89,7 +98,12 @@
     >>> group.photos.count()
     4432
 
-### Получение статистики группы через API
+### Получение статистики группы
+
+Для этого необходимо установить дополнительно приложение
+[`django-vkontakte-groups-statistic`](http://github.com/ramusus/django-vkontakte-groups-statistic/) и добавить его в `INSTALLED_APPS`
+
+Получение статистики группы через API
 
     >>> from vkontakte_groups.models import Group
     >>> group = Group.remote.fetch(ids=[16297716])[0]
@@ -117,7 +131,7 @@
      'views': 1401,
      'visitors': 702}
 
-### Получение статистики группы через парсер
+Получение статистики группы через парсер
 
     >>> from vkontakte_groups.models import Group
     >>> group = Group.remote.fetch(ids=[16297716])[0]
@@ -185,6 +199,9 @@
      'widget_users_views': None}
 
 ### Получение среза подписчиков группы
+
+Для этого необходимо установить дополнительно приложения
+[`django-vkontakte-groups-migration`](http://github.com/ramusus/django-vkontakte-groups-migration/) и добавить его в `INSTALLED_APPS`
 
     >>> from vkontakte_groups.models import Group
     >>> group = Group.remote.fetch(ids=[16297716])[0]
