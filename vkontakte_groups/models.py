@@ -132,3 +132,8 @@ class Group(VkontakteIDModel):
 if 'vkontakte_users' in settings.INSTALLED_APPS:
     from vkontakte_users.models import User
     Group.add_to_class('users', models.ManyToManyField(User))
+else:
+    @property
+    def users(self):
+        raise ImproperlyConfigured("Application 'vkontakte_users' not in INSTALLED_APPS")
+    Group.add_to_class('users', users)

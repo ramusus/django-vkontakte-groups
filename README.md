@@ -209,10 +209,10 @@
 
 Срез подписчиков доступен через менеджер
 
-    >>> stat_members = group.members_statistics.all()[0]
-    >>> len(stat_members.members_ids)
+    >>> migration = group.migrations.all()[0]
+    >>> len(migration.members_ids)
     5277888
-    >>> stat_members.members_count
+    >>> migration.members_count
     5277888
 
 Подписчики доступны через менеджер. Для этого необходимо установить дополнительно приложение

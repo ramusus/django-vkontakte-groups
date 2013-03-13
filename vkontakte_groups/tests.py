@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
+from django.core.exceptions import ImproperlyConfigured
 from models import Group
+from factories import GroupFactory
 import simplejson as json
 
 GROUP_ID = 30221121
@@ -47,3 +49,12 @@ class VkontakteGroupsTest(TestCase):
         groups = Group.remote.search(q=GROUP_NAME)
 
         self.assertTrue(len(groups) > 1)
+
+    def test_raise_users_exception(self):
+
+        group = GroupFactory.create(remote_id=GROUP_ID)
+        try:
+            group.users
+            assert False
+        except ImproperlyConfigured, e:
+            pass
