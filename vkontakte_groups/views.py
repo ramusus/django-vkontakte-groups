@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-from vkontakte_groups_statistic.models import GroupStat, GroupStatPersentage, VkontakteDeniedAccessError
+from vkontakte_groups_statistic.models import GroupStat, GroupStatPercentage, VkontakteDeniedAccessError
 from models import Group
 from forms import GroupImportStatisticForm, GroupImportPostsForm
 import re
@@ -72,7 +72,7 @@ def import_statistic_via_bookmarklet(request, redirect_url_name=None):
     group_id = m[0]
     group = Group.remote.fetch(ids=[group_id])[0]
     GroupStat.objects.parse_statistic_page(group, request.POST['body'])
-    GroupStatPersentage.objects.parse_statistic_page(group, request.POST['body'])
+    GroupStatPercentage.objects.parse_statistic_page(group, request.POST['body'])
     try:
         return HttpResponseRedirect(reverse(redirect_url_name, args=(group.id,)))
     except:

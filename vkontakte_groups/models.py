@@ -40,7 +40,6 @@ class GroupRemoteManager(VkontakteManager):
 
 class Group(VkontakteIDModel):
     class Meta:
-        db_table = 'vkontakte_groups_group'
         verbose_name = _('Vkontakte group')
         verbose_name_plural = _('Vkontakte groups')
         ordering = ['name']
