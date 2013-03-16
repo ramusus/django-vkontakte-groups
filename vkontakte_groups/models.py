@@ -71,62 +71,62 @@ class Group(VkontakteIDModel):
 
     @property
     def wall_comments(self):
-        if 'vkontakte_wall' in settings.INSTALLED_APPS:
-            from vkontakte_wall.models import Comment
-            return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
-        else:
+        if 'vkontakte_wall' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
+
+        from vkontakte_wall.models import Comment
+        return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
     @property
     def topics_comments(self):
-        if 'vkontakte_board' in settings.INSTALLED_APPS:
-            from vkontakte_board.models import Comment
-            return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
-        else:
+        if 'vkontakte_board' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_board' not in INSTALLED_APPS")
+
+        from vkontakte_board.models import Comment
+        return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
     @property
     def photos(self):
-        if 'vkontakte_photos' in settings.INSTALLED_APPS:
-            from vkontakte_photos.models import Photo
-            return Photo.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
-        else:
+        if 'vkontakte_photos' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_photos' not in INSTALLED_APPS")
+
+        from vkontakte_photos.models import Photo
+        return Photo.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
     def fetch_posts(self, *args, **kwargs):
-        if 'vkontakte_wall' in settings.INSTALLED_APPS:
-            from vkontakte_wall.models import Post
-            return Post.remote.fetch_group_wall(self, *args, **kwargs)
-        else:
+        if 'vkontakte_wall' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
 
+        from vkontakte_wall.models import Post
+        return Post.remote.fetch_group_wall(self, *args, **kwargs)
+
     def fetch_albums(self, *args, **kwargs):
-        if 'vkontakte_photos' in settings.INSTALLED_APPS:
-            from vkontakte_photos.models import Album
-            return Album.remote.fetch(group=self, *args, **kwargs)
-        else:
+        if 'vkontakte_photos' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_photos' not in INSTALLED_APPS")
 
+        from vkontakte_photos.models import Album
+        return Album.remote.fetch(group=self, *args, **kwargs)
+
     def fetch_topics(self, *args, **kwargs):
-        if 'vkontakte_board' in settings.INSTALLED_APPS:
-            from vkontakte_board.models import Topic
-            return Topic.remote.fetch(group=self, *args, **kwargs)
-        else:
+        if 'vkontakte_board' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_board' not in INSTALLED_APPS")
 
+        from vkontakte_board.models import Topic
+        return Topic.remote.fetch(group=self, *args, **kwargs)
+
     def update_statistic(self, *args, **kwargs):
-        if 'vkontakte_groups_statistic' in settings.INSTALLED_APPS:
-            from vkontakte_groups_statistic.models import update_statistic_for_group
-            return update_statistic_for_group(group=self, *args, **kwargs)
-        else:
+        if 'vkontakte_groups_statistic' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_groups_statistic' not in INSTALLED_APPS")
 
+        from vkontakte_groups_statistic.models import update_statistic_for_group
+        return update_statistic_for_group(group=self, *args, **kwargs)
+
     def update_users(self, *args, **kwargs):
-        if 'vkontakte_groups_migration' in settings.INSTALLED_APPS:
-            from vkontakte_groups_migration.models import GroupMigration
-            return GroupMigration.objects.update_for_group(group=self, *args, **kwargs)
-        else:
+        if 'vkontakte_groups_migration' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_groups_migration' not in INSTALLED_APPS")
+
+        from vkontakte_groups_migration.models import GroupMigration
+        return GroupMigration.objects.update_for_group(group=self, *args, **kwargs)
 
 if 'vkontakte_users' in settings.INSTALLED_APPS:
     from vkontakte_users.models import User
