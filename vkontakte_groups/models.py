@@ -114,12 +114,12 @@ class Group(VkontakteIDModel):
         from vkontakte_board.models import Topic
         return Topic.remote.fetch(group=self, *args, **kwargs)
 
-    def update_statistic(self, *args, **kwargs):
+    def fetch_statistic(self, *args, **kwargs):
         if 'vkontakte_groups_statistic' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_groups_statistic' not in INSTALLED_APPS")
 
-        from vkontakte_groups_statistic.models import update_statistic_for_group
-        return update_statistic_for_group(group=self, *args, **kwargs)
+        from vkontakte_groups_statistic.models import fetch_statistic_for_group
+        return fetch_statistic_for_group(group=self, *args, **kwargs)
 
     def update_users(self, *args, **kwargs):
         if 'vkontakte_groups_migration' not in settings.INSTALLED_APPS:

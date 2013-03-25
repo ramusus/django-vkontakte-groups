@@ -21,7 +21,7 @@ class GroupImportForm(forms.Form):
 class GroupImportStatisticForm(GroupImportForm):
     def save(self, *args, **kwargs):
         group = super(GroupImportStatisticForm, self).save(*args, **kwargs)
-        group.update_statistic()
+        group.fetch_statistic()
         return group
 
 class GroupImportPostsForm(GroupImportForm):
