@@ -5,7 +5,6 @@ from django.utils.translation import ugettext as _
 from django.core.exceptions import MultipleObjectsReturned, ImproperlyConfigured
 from django.conf import settings
 from vkontakte_api import fields
-from vkontakte_api.utils import api_call
 from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontakteIDModel, VkontakteDeniedAccessError, VkontakteContentError
 from datetime import datetime
 from urllib import unquote

@@ -26,6 +26,25 @@
     OAUTH_TOKENS_VKONTAKTE_PASSWORD = ''                                # user password
     OAUTH_TOKENS_VKONTAKTE_PHONE_END = ''                               # last 4 digits of user mobile phone
 
+## Покрытие методов API
+
+* [groups.getById](http://vk.com/developers.php?oid=-1&p=groups.getById) – возвращает информацию о группах по их идентификаторам;
+* [groups.search](http://vk.com/developers.php?oid=-1&p=groups.search) – Осуществляет поиск групп по заданной подстроке;
+
+В планах:
+
+* [groups.getMembers](http://vk.com/developers.php?oid=-1&p=groups.getMembers) – возвращает список участников группы;
+
+## Использование парсера
+
+* Получение количества комментариев к фотографии;
+* Получение количества лайков фотографии;
+
+В планах:
+
+* Получение комментариев к фотографии;
+* Получение лайков фотографии;
+
 ## Примеры использования
 
 ### Получение группы
