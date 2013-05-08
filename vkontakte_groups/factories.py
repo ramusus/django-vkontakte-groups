@@ -1,8 +1,7 @@
 from models import Group
 import factory
-import random
 
-class GroupFactory(factory.Factory):
+class GroupFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Group
 
     remote_id = factory.Sequence(lambda n: n)
