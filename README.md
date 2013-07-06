@@ -1,10 +1,10 @@
-# Django Vkontakte Groups
-
-[![Build Status](https://travis-ci.org/ramusus/django-vkontakte-groups.png?branch=master)](https://travis-ci.org/ramusus/django-vkontakte-groups) [![Coverage Status](https://coveralls.io/repos/ramusus/django-vkontakte-groups/badge.png?branch=master)](https://coveralls.io/r/ramusus/django-vkontakte-groups)
+Django Vkontakte Groups [![Build Status](https://travis-ci.org/ramusus/django-vkontakte-groups.png?branch=master)](https://travis-ci.org/ramusus/django-vkontakte-groups) [![Coverage Status](https://coveralls.io/repos/ramusus/django-vkontakte-groups/badge.png?branch=master)](https://coveralls.io/r/ramusus/django-vkontakte-groups)
+=======================
 
 Приложение позволяет взаимодействовать с группами Вконтакте, их статистикой и пользователями групп через Вконтакте API используя стандартные модели Django
 
-## Установка
+Установка
+---------
 
     pip install django-vkontakte-groups
 
@@ -26,7 +26,8 @@
     OAUTH_TOKENS_VKONTAKTE_PASSWORD = ''                                # user password
     OAUTH_TOKENS_VKONTAKTE_PHONE_END = ''                               # last 4 digits of user mobile phone
 
-## Покрытие методов API
+Покрытие методов API
+--------------------
 
 * [groups.getById](http://vk.com/developers.php?oid=-1&p=groups.getById) – возвращает информацию о группах по их идентификаторам;
 * [groups.search](http://vk.com/developers.php?oid=-1&p=groups.search) – Осуществляет поиск групп по заданной подстроке;
@@ -35,7 +36,8 @@
 
 * [groups.getMembers](http://vk.com/developers.php?oid=-1&p=groups.getMembers) – возвращает список участников группы;
 
-## Примеры использования
+Примеры использования
+---------------------
 
 ### Получение группы
 
