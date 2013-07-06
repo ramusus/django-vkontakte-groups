@@ -20,6 +20,17 @@ GROUP_TYPE_CHOICES = (
     ('event', u'Событие'),
 )
 
+class ParseGroupsMixin(object):
+    '''
+    Manager mixin for parsing response with extra cache 'groups'. Used in vkontakte_wall applications
+    '''
+    def parse_response_groups(self, response_list):
+        users = Group.remote.parse_response_list(response_list.get('groups', []), {'fetched': datetime.now()})
+        instances = []
+        for instance in users:
+            instances += [Group.remote.get_or_create_from_instance(instance)]
+        return instances
+
 class GroupRemoteManager(VkontakteManager):
 
     def api_call(self, *args, **kwargs):
@@ -97,7 +108,7 @@ class Group(VkontakteIDModel):
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
 
         from vkontakte_wall.models import Post
-        return Post.remote.fetch_group_wall(self, *args, **kwargs)
+        return Post.remote.fetch_wall(owner=self, *args, **kwargs)
 
     def fetch_albums(self, *args, **kwargs):
         if 'vkontakte_photos' not in settings.INSTALLED_APPS:
