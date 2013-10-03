@@ -1,5 +1,7 @@
-Django Vkontakte Groups [![Build Status](https://travis-ci.org/ramusus/django-vkontakte-groups.png?branch=master)](https://travis-ci.org/ramusus/django-vkontakte-groups) [![Coverage Status](https://coveralls.io/repos/ramusus/django-vkontakte-groups/badge.png?branch=master)](https://coveralls.io/r/ramusus/django-vkontakte-groups)
+Django Vkontakte Groups
 =======================
+
+[![PyPI version](https://badge.fury.io/py/django-vkontakte-groups.png)](http://badge.fury.io/py/django-vkontakte-groups) [![Build Status](https://travis-ci.org/ramusus/django-vkontakte-groups.png?branch=master)](https://travis-ci.org/ramusus/django-vkontakte-groups) [![Coverage Status](https://coveralls.io/repos/ramusus/django-vkontakte-groups/badge.png?branch=master)](https://coveralls.io/r/ramusus/django-vkontakte-groups)
 
 Приложение позволяет взаимодействовать с группами Вконтакте, их статистикой и пользователями групп через Вконтакте API используя стандартные модели Django
 
@@ -13,6 +15,7 @@ Django Vkontakte Groups [![Build Status](https://travis-ci.org/ramusus/django-vk
     INSTALLED_APPS = (
         ...
         'oauth_tokens',
+        'taggit',
         'vkontakte_api',
         'vkontakte_groups',
     )
@@ -29,12 +32,12 @@ Django Vkontakte Groups [![Build Status](https://travis-ci.org/ramusus/django-vk
 Покрытие методов API
 --------------------
 
-* [groups.getById](http://vk.com/developers.php?oid=-1&p=groups.getById) – возвращает информацию о группах по их идентификаторам;
-* [groups.search](http://vk.com/developers.php?oid=-1&p=groups.search) – Осуществляет поиск групп по заданной подстроке;
+* [groups.getById](http://vk.com/dev/groups.getById) – возвращает информацию о группах по их идентификаторам;
+* [groups.search](http://vk.com/dev/groups.search) – Осуществляет поиск групп по заданной подстроке;
 
 В планах:
 
-* [groups.getMembers](http://vk.com/developers.php?oid=-1&p=groups.getMembers) – возвращает список участников группы;
+* [groups.getMembers](http://vk.com/dev/groups.getMembers) – возвращает список участников группы;
 
 Примеры использования
 ---------------------
