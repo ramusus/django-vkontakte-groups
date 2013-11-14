@@ -60,8 +60,8 @@ class Group(VkontakteIDModel):
 
     name = models.CharField(max_length=800)
     screen_name = models.CharField(u'Короткое имя группы', max_length=50, db_index=True)
-    is_closed = models.BooleanField(u'Флаг закрытой группы')
-    is_admin = models.BooleanField(u'Пользователь является администратором')
+    is_closed = models.NullBooleanField(u'Флаг закрытой группы')
+    is_admin = models.NullBooleanField(u'Пользователь является администратором')
     type = models.CharField(u'Тип объекта', max_length=10, choices=GROUP_TYPE_CHOICES)
 
     photo = models.URLField()
