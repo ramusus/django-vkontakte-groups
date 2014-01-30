@@ -80,6 +80,10 @@ class Group(VkontakteIDModel):
         return 'http://vk.com/club%d' % self.remote_id
 
     @property
+    def refresh_kwargs(self):
+        return {'ids': [self.remote_id]}
+
+    @property
     def wall_comments(self):
         if 'vkontakte_wall' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
