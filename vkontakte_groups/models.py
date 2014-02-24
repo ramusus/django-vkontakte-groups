@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 from django.core.exceptions import MultipleObjectsReturned, ImproperlyConfigured
 from django.conf import settings
 from vkontakte_api import fields
-from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontakteIDModel, VkontakteDeniedAccessError, VkontakteContentError
+from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel, VkontakteDeniedAccessError, VkontakteContentError
 from datetime import datetime
 from urllib import unquote
 import logging
@@ -15,9 +15,9 @@ import simplejson as json
 log = logging.getLogger('vkontakte_groups')
 
 GROUP_TYPE_CHOICES = (
-    ('group', u'Группа'),
-    ('page', u'Страница'),
-    ('event', u'Событие'),
+    ('group',  u'Группа'),
+    ('page',  u'Страница'),
+    ('event',  u'Событие'),
 )
 
 class ParseGroupsMixin(object):
@@ -48,11 +48,10 @@ class GroupRemoteManager(VkontakteManager):
 
         return self.get(method='search', **kwargs)
 
-class Group(VkontakteIDModel):
+class Group(VkontaktePKModel):
     class Meta:
         verbose_name = _('Vkontakte group')
         verbose_name_plural = _('Vkontakte groups')
-        ordering = ['name']
 
     methods_namespace = 'groups'
     remote_pk_field = 'gid'
