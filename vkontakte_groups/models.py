@@ -53,6 +53,7 @@ class Group(VkontaktePKModel):
         verbose_name = _('Vkontakte group')
         verbose_name_plural = _('Vkontakte groups')
 
+    resolve_screen_name_type = 'group'
     methods_namespace = 'groups'
     remote_pk_field = 'gid'
     slug_prefix = 'club'
@@ -88,6 +89,7 @@ class Group(VkontaktePKModel):
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
 
         from vkontakte_wall.models import Comment
+        # TODO: improve schema and queries with using owner_id field
         return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
     @property
@@ -96,6 +98,7 @@ class Group(VkontaktePKModel):
             raise ImproperlyConfigured("Application 'vkontakte_board' not in INSTALLED_APPS")
 
         from vkontakte_board.models import Comment
+        # TODO: improve schema and queries with using owner_id field
         return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
     @property
@@ -104,6 +107,7 @@ class Group(VkontaktePKModel):
             raise ImproperlyConfigured("Application 'vkontakte_photos' not in INSTALLED_APPS")
 
         from vkontakte_photos.models import Photo
+        # TODO: improve schema and queries with using owner_id field
         return Photo.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
     def fetch_posts(self, *args, **kwargs):
