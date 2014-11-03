@@ -67,7 +67,7 @@ class VkontakteGroupsTest(TestCase):
 
     def test_raise_users_exception(self):
 
-        group = GroupFactory.create(remote_id=GROUP_ID)
+        group = GroupFactory(remote_id=GROUP_ID)
         try:
             group.users
             assert False

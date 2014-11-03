@@ -53,7 +53,7 @@ class Group(VkontaktePKModel):
         verbose_name = _('Vkontakte group')
         verbose_name_plural = _('Vkontakte groups')
 
-    resolve_screen_name_type = 'group'
+    resolve_screen_name_types = ['group','page','event']
     methods_namespace = 'groups'
     remote_pk_field = 'gid'
     slug_prefix = 'club'
