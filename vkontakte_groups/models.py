@@ -62,6 +62,8 @@ class Group(VkontaktePKModel):
     screen_name = models.CharField(u'Короткое имя группы', max_length=50, db_index=True)
     is_closed = models.NullBooleanField(u'Флаг закрытой группы')
     is_admin = models.NullBooleanField(u'Пользователь является администратором')
+    #TODO заполнять данными из API https://vk.com/dev/groups.getById поле members_count
+    members = models.IntegerField(u'Всего участников', null=True) # strange, but there is possible negative values
     type = models.CharField(u'Тип объекта', max_length=10, choices=GROUP_TYPE_CHOICES)
 
     photo = models.URLField()
