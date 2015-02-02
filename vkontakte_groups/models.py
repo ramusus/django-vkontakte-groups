@@ -52,11 +52,6 @@ class GroupRemoteManager(VkontakteManager):
             kwargs['fields'] = 'members_count'
         return super(GroupRemoteManager, self).fetch(*args, **kwargs)
 
-class Group(VkontaktePKModel):
-    class Meta:
-        verbose_name = _('Vkontakte group')
-        verbose_name_plural = _('Vkontakte groups')
-
 
 @python_2_unicode_compatible
 class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, VkontaktePKModel):
@@ -88,9 +83,6 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
 
     def __str__(self):
         return self.name
-
-    def remote_link(self):
-        return 'http://vk.com/club%d' % self.remote_id
 
     @property
     def refresh_kwargs(self):
