@@ -15,7 +15,7 @@ import simplejson as json
 from vkontakte_api import fields
 from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel, VkontakteDeniedAccessError, VkontakteContentError
 
-from .mixins import PhotableModelMixin, VideobleModelMixin, UserableModelMixin, ParseGroupsMixin
+from .mixins import PhotableModelMixin, VideoableModelMixin, UserableModelMixin, ParseGroupsMixin
 
 
 log = logging.getLogger('vkontakte_groups')
@@ -46,7 +46,7 @@ class GroupRemoteManager(VkontakteManager):
 
 
 @python_2_unicode_compatible
-class Group(PhotableModelMixin, VideobleModelMixin, UserableModelMixin, VkontaktePKModel):
+class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, VkontaktePKModel):
 
     resolve_screen_name_types = ['group', 'page', 'event']
     methods_namespace = 'groups'

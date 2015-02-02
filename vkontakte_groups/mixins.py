@@ -41,7 +41,7 @@ class PhotableModelMixin(models.Model):
         fetch_photoalbums = get_improperly_configured_field('vkontakte_photos')
 
 
-class VideobleModelMixin(models.Model):
+class VideoableModelMixin(models.Model):
 
     class Meta:
         abstract = True
@@ -62,6 +62,10 @@ class VideobleModelMixin(models.Model):
         def fetch_videoalbums(self, *args, **kwargs):
             from vkontakte_video.models import Album
             return Album.remote.fetch(owner=self, *args, **kwargs)
+
+        def fetch_videos(self, *args, **kwargs):
+            from vkontakte_video.models import Video
+            return Video.remote.fetch(owner=self, *args, **kwargs)
     else:
 
         videoalbums = get_improperly_configured_field('vkontakte_video', True)
