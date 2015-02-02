@@ -31,6 +31,7 @@ class VkontakteGroupsTest(TestCase):
         self.assertEqual(Group.objects.count(), 1)
         self.assertEqual(instance.remote_id, GROUP_ID)
         self.assertEqual(instance.screen_name, GROUP_SCREEN_NAME)
+        self.assertGreater(instance.members_count, 0)
 
     def test_parse_group(self):
 
@@ -38,7 +39,8 @@ class VkontakteGroupsTest(TestCase):
             {"response":[{"gid":1,"name":"ВКонтакте API","screen_name":"apiclub","is_closed":0,
                 "is_admin":1,"type":"group","photo":"http://cs400.vkontakte.ru/g00001/e_5ba03323.jpg",
                 "photo_medium":"http://cs400.vkontakte.ru/g00001/d_7bfe2183.jpg",
-                "photo_big":"http://cs400.vkontakte.ru/g00001/a_9a5cd502.jpg"},
+                "photo_big":"http://cs400.vkontakte.ru/g00001/a_9a5cd502.jpg",
+                "members_count":3168},
                 {"gid":45,"name":"›››› ФМЛ 239 ››››","screen_name":"fml239","is_closed":1,"is_admin":0,"type":"group",
                 "photo":"http://cs39.vkontakte.ru/g00045/c_5a38eec.jpg",
                 "photo_medium":"http://cs39.vkontakte.ru/g00045/b_5a38eec.jpg",
@@ -53,6 +55,7 @@ class VkontakteGroupsTest(TestCase):
         self.assertEqual(instance.screen_name, 'apiclub')
         self.assertEqual(instance.is_closed, False)
         self.assertEqual(instance.is_admin, True)
+        self.assertEqual(instance.members_count, 3168)
         self.assertEqual(instance.type, 'group')
         self.assertEqual(instance.photo, 'http://cs400.vkontakte.ru/g00001/e_5ba03323.jpg')
         self.assertEqual(instance.photo_medium, 'http://cs400.vkontakte.ru/g00001/d_7bfe2183.jpg')
