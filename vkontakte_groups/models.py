@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-from django.db.models.query import QuerySet
-from django.utils.translation import ugettext as _
-from django.core.exceptions import MultipleObjectsReturned, ImproperlyConfigured
-from django.conf import settings
-from vkontakte_api import fields
-from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel, VkontakteDeniedAccessError, VkontakteContentError
 from datetime import datetime
-from urllib import unquote
 import logging
 import re
+from urllib import unquote
+
+from django.conf import settings
+from django.contrib.contenttypes import generic
+from django.core.exceptions import MultipleObjectsReturned, ImproperlyConfigured
+from django.db import models
+from django.db.models.query import QuerySet
+from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext as _
 import simplejson as json
+from vkontakte_api import fields
+from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel, VkontakteDeniedAccessError, VkontakteContentError
+
+from .mixins import PhotableModelMixin, VideobleModelMixin, UserableModelMixin, ParseGroupsMixin
+
 
 log = logging.getLogger('vkontakte_groups')
 
@@ -20,16 +26,6 @@ GROUP_TYPE_CHOICES = (
     ('event',  u'Событие'),
 )
 
-class ParseGroupsMixin(object):
-    '''
-    Manager mixin for parsing response with extra cache 'groups'. Used in vkontakte_wall applications
-    '''
-    def parse_response_groups(self, response_list):
-        users = Group.remote.parse_response_list(response_list.get('groups', []), {'fetched': datetime.now()})
-        instances = []
-        for instance in users:
-            instances += [Group.remote.get_or_create_from_instance(instance)]
-        return instances
 
 class GroupRemoteManager(VkontakteManager):
 
@@ -61,7 +57,11 @@ class Group(VkontaktePKModel):
         verbose_name = _('Vkontakte group')
         verbose_name_plural = _('Vkontakte groups')
 
-    resolve_screen_name_types = ['group','page','event']
+
+@python_2_unicode_compatible
+class Group(PhotableModelMixin, VideobleModelMixin, UserableModelMixin, VkontaktePKModel):
+
+    resolve_screen_name_types = ['group', 'page', 'event']
     methods_namespace = 'groups'
     remote_pk_field = 'gid'
     slug_prefix = 'club'
@@ -82,7 +82,11 @@ class Group(VkontaktePKModel):
         'search': 'search',
     })
 
-    def __unicode__(self):
+    class Meta:
+        verbose_name = _('Vkontakte group')
+        verbose_name_plural = _('Vkontakte groups')
+
+    def __str__(self):
         return self.name
 
     def remote_link(self):
@@ -110,28 +114,12 @@ class Group(VkontaktePKModel):
         # TODO: improve schema and queries with using owner_id field
         return Comment.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
 
-    @property
-    def photos(self):
-        if 'vkontakte_photos' not in settings.INSTALLED_APPS:
-            raise ImproperlyConfigured("Application 'vkontakte_photos' not in INSTALLED_APPS")
-
-        from vkontakte_photos.models import Photo
-        # TODO: improve schema and queries with using owner_id field
-        return Photo.objects.filter(remote_id__startswith='-%s_' % self.remote_id)
-
     def fetch_posts(self, *args, **kwargs):
         if 'vkontakte_wall' not in settings.INSTALLED_APPS:
             raise ImproperlyConfigured("Application 'vkontakte_wall' not in INSTALLED_APPS")
 
         from vkontakte_wall.models import Post
         return Post.remote.fetch_wall(owner=self, *args, **kwargs)
-
-    def fetch_albums(self, *args, **kwargs):
-        if 'vkontakte_photos' not in settings.INSTALLED_APPS:
-            raise ImproperlyConfigured("Application 'vkontakte_photos' not in INSTALLED_APPS")
-
-        from vkontakte_photos.models import Album
-        return Album.remote.fetch(group=self, *args, **kwargs)
 
     def fetch_topics(self, *args, **kwargs):
         if 'vkontakte_board' not in settings.INSTALLED_APPS:
@@ -153,12 +141,3 @@ class Group(VkontaktePKModel):
 
         from vkontakte_groups_migration.models import GroupMigration
         return GroupMigration.objects.update_for_group(group=self, *args, **kwargs)
-
-if 'vkontakte_users' in settings.INSTALLED_APPS:
-    from vkontakte_users.models import User
-    Group.add_to_class('users', models.ManyToManyField(User))
-else:
-    @property
-    def users(self):
-        raise ImproperlyConfigured("Application 'vkontakte_users' not in INSTALLED_APPS")
-    Group.add_to_class('users', users)
