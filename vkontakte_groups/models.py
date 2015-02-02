@@ -44,6 +44,19 @@ class GroupRemoteManager(VkontakteManager):
 
         return self.get(method='search', **kwargs)
 
+    def fetch(self, *args, **kwargs):
+        '''
+        Add additional fields to parent fetch request
+        '''
+        if 'fields' not in kwargs:
+            kwargs['fields'] = 'members_count'
+        return super(GroupRemoteManager, self).fetch(*args, **kwargs)
+
+class Group(VkontaktePKModel):
+    class Meta:
+        verbose_name = _('Vkontakte group')
+        verbose_name_plural = _('Vkontakte groups')
+
 
 @python_2_unicode_compatible
 class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, VkontaktePKModel):
@@ -57,6 +70,7 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
     screen_name = models.CharField(u'Короткое имя группы', max_length=50, db_index=True)
     is_closed = models.NullBooleanField(u'Флаг закрытой группы')
     is_admin = models.NullBooleanField(u'Пользователь является администратором')
+    members_count = models.IntegerField(u'Всего участников', null=True)
     type = models.CharField(u'Тип объекта', max_length=10, choices=GROUP_TYPE_CHOICES)
 
     photo = models.URLField()
