@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
-from django.core.exceptions import ImproperlyConfigured
-from models import Group
-from factories import GroupFactory
+import mock
 import simplejson as json
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase
+from vkontakte_users.tests import user_fetch_mock
+
+from .factories import GroupFactory
+from .models import Group
 
 GROUP_ID = 30221121
 GROUP_SCREEN_NAME = 'volkswagen_jm'
 GROUP_NAME = 'Volkswagen'
+
 
 class VkontakteGroupsTest(TestCase):
 
@@ -76,3 +81,28 @@ class VkontakteGroupsTest(TestCase):
             assert False
         except ImproperlyConfigured, e:
             pass
+
+    if 'vkontakte_users' in settings.INSTALLED_APPS:
+
+        @mock.patch('vkontakte_users.models.User.remote._fetch', side_effect=user_fetch_mock)
+        def test_fetch_group_members(self, fetch):
+            from vkontakte_users.models import User
+
+            group = GroupFactory(remote_id=GROUP_ID)
+
+            self.assertEqual(User.objects.count(), 0)
+            self.assertEqual(group.members.versions.count(), 0)
+
+            users = group.update_members()
+
+            self.assertTrue(group.members_count > 3100)
+            self.assertEqual(group.members_count, User.objects.count())
+            self.assertEqual(group.members_count, users.count())
+            self.assertEqual(group.members_count, group.members.count())
+
+            self.assertEqual(group.members.versions.count(), 1)
+
+            version = group.members.versions.all()[0]
+
+            self.assertEqual(version.added_count, 0)
+            self.assertEqual(version.removed_count, 0)

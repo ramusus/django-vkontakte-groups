@@ -1,22 +1,24 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import logging
 import re
+from datetime import datetime
 from urllib import unquote
 
+import simplejson as json
 from django.conf import settings
-from django.contrib.contenttypes import generic
-from django.core.exceptions import MultipleObjectsReturned, ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.db.models.query import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
-import simplejson as json
 from vkontakte_api import fields
-from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel, VkontakteDeniedAccessError, VkontakteContentError
+from vkontakte_api.decorators import fetch_all
+from vkontakte_api.models import (VkontakteContentError,
+                                  VkontakteDeniedAccessError, VkontakteManager,
+                                  VkontakteModel, VkontaktePKModel)
 
-from .mixins import PhotableModelMixin, VideoableModelMixin, UserableModelMixin, ParseGroupsMixin
-
+from .mixins import (ParseGroupsMixin, PhotableModelMixin, UserableModelMixin,
+                     VideoableModelMixin)
 
 log = logging.getLogger('vkontakte_groups')
 
@@ -52,6 +54,12 @@ class GroupRemoteManager(VkontakteManager):
             kwargs['fields'] = 'members_count'
         return super(GroupRemoteManager, self).fetch(*args, **kwargs)
 
+    @fetch_all(always_all=True)
+    def get_members_ids(self, group, **kwargs):
+        kwargs['gid'] = group.remote_id
+        response = self.api_call('get_members', **kwargs)
+        return response['users']
+
 
 @python_2_unicode_compatible
 class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, VkontaktePKModel):
@@ -75,6 +83,7 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
     remote = GroupRemoteManager(remote_pk=('remote_id',), methods={
         'get': 'getById',
         'search': 'search',
+        'get_members': 'getMembers',
     })
 
     class Meta:
@@ -126,10 +135,3 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
 
         from vkontakte_groups_statistic.models import fetch_statistic_for_group
         return fetch_statistic_for_group(group=self, *args, **kwargs)
-
-    def update_users(self, *args, **kwargs):
-        if 'vkontakte_groups_migration' not in settings.INSTALLED_APPS:
-            raise ImproperlyConfigured("Application 'vkontakte_groups_migration' not in INSTALLED_APPS")
-
-        from vkontakte_groups_migration.models import GroupMigration
-        return GroupMigration.objects.update_for_group(group=self, *args, **kwargs)
