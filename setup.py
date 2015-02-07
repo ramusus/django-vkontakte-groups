@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name='django-vkontakte-groups',
@@ -15,6 +15,7 @@ setup(
     zip_safe=False, # because we're including media that Django needs
     install_requires=[
         'django-vkontakte-api>=0.5.15',
+        'django-m2m-history>=0.2.0',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
