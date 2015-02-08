@@ -33,7 +33,7 @@ class GroupRemoteManager(VkontakteManager):
 
     def api_call(self, *args, **kwargs):
         if 'ids' in kwargs:
-            kwargs['gids'] = ','.join(map(lambda i: str(i), kwargs.pop('ids')))
+            kwargs['group_ids'] = ','.join(map(lambda i: str(i), kwargs.pop('ids')))
         return super(GroupRemoteManager, self).api_call(*args, **kwargs)
 
     def search(self, q, offset=None, count=None):
@@ -56,17 +56,14 @@ class GroupRemoteManager(VkontakteManager):
 
     @fetch_all(always_all=True)
     def get_members_ids(self, group, **kwargs):
-        kwargs['gid'] = group.remote_id
-        response = self.api_call('get_members', **kwargs)
-        return response['users']
+        kwargs['group_id'] = group.remote_id
+        return self.api_call('get_members', **kwargs)
 
 
 @python_2_unicode_compatible
 class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, VkontaktePKModel):
 
     resolve_screen_name_types = ['group', 'page', 'event']
-    methods_namespace = 'groups'
-    remote_pk_field = 'gid'
     slug_prefix = 'club'
 
     name = models.CharField(max_length=800)
@@ -80,7 +77,7 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
     photo_big = models.URLField()
     photo_medium = models.URLField()
 
-    remote = GroupRemoteManager(remote_pk=('remote_id',), methods={
+    remote = GroupRemoteManager(remote_pk=('remote_id',), methods_namespace='groups', version=5.28, methods={
         'get': 'getById',
         'search': 'search',
         'get_members': 'getMembers',

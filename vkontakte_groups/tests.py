@@ -41,7 +41,7 @@ class VkontakteGroupsTest(TestCase):
     def test_parse_group(self):
 
         response = '''
-            {"response":[{"gid":1,"name":"ВКонтакте API","screen_name":"apiclub","is_closed":0,
+            {"response":[{"id":1,"name":"ВКонтакте API","screen_name":"apiclub","is_closed":0,
                 "is_admin":1,"type":"group","photo":"http://cs400.vkontakte.ru/g00001/e_5ba03323.jpg",
                 "photo_medium":"http://cs400.vkontakte.ru/g00001/d_7bfe2183.jpg",
                 "photo_big":"http://cs400.vkontakte.ru/g00001/a_9a5cd502.jpg",
@@ -73,14 +73,14 @@ class VkontakteGroupsTest(TestCase):
 
         self.assertTrue(len(groups) > 1)
 
-    def test_raise_users_exception(self):
-
-        group = GroupFactory(remote_id=GROUP_ID)
-        try:
-            group.users
-            assert False
-        except ImproperlyConfigured, e:
-            pass
+    # def test_raise_users_exception(self):
+    #
+    #     group = GroupFactory(remote_id=GROUP_ID)
+    #     try:
+    #         group.members
+    #         assert False
+    #     except ImproperlyConfigured, e:
+    #         pass
 
     if 'vkontakte_users' in settings.INSTALLED_APPS:
 
