@@ -85,6 +85,21 @@ class VkontakteGroupsTest(TestCase):
     if 'vkontakte_users' in settings.INSTALLED_APPS:
 
         @mock.patch('vkontakte_users.models.User.remote._fetch', side_effect=user_fetch_mock)
+        def test_group_add_members_ids_not_users(self, fetch):
+
+            from vkontakte_users.models import User
+            User.remote.fetch(ids=range(0, 500))
+
+            group = GroupFactory(remote_id=GROUP_ID)
+            group.members = range(0, 1000)
+
+            self.assertEqual(group.members.count(), 500)
+            self.assertEqual(group.members.get_queryset().count(), 500)
+            self.assertEqual(group.members.get_queryset_through().count(), 1000)
+            self.assertItemsEqual(group.members.all(), User.objects.all())
+            self.assertItemsEqual(group.members.get_queryset(only_pk=True), range(0, 1000))
+
+        @mock.patch('vkontakte_users.models.User.remote._fetch', side_effect=user_fetch_mock)
         def test_fetch_group_members(self, fetch):
             from vkontakte_users.models import User
 
@@ -93,11 +108,11 @@ class VkontakteGroupsTest(TestCase):
             self.assertEqual(User.objects.count(), 0)
             self.assertEqual(group.members.versions.count(), 0)
 
-            users = group.update_members()
+            with self.settings(**dict(VKONTAKTE_USERS_FETCH_USERS_ASYNC=False)):
+                group.update_members()
 
             self.assertTrue(group.members_count > 3100)
             self.assertEqual(group.members_count, User.objects.count())
-            self.assertEqual(group.members_count, users.count())
             self.assertEqual(group.members_count, group.members.count())
 
             self.assertEqual(group.members.versions.count(), 1)

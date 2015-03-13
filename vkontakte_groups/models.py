@@ -133,3 +133,5 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
 
         from vkontakte_groups_statistic.models import fetch_statistic_for_group
         return fetch_statistic_for_group(group=self, *args, **kwargs)
+
+from . import signals

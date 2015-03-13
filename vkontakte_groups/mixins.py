@@ -1,10 +1,10 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+from django.core.exceptions import ImproperlyConfigured
 from m2m_history.fields import ManyToManyHistoryField
 from vkontakte_api.decorators import atomic, opt_generator
 from vkontakte_api.utils import get_improperly_configured_field
-
-FETCH_ONLY_EXPIRED_USERS = getattr(settings, 'VKONTAKTE_GROUPS_MEMBERS_FETCH_ONLY_EXPIRED_USERS', True)
 
 
 class UserableModelMixin(models.Model):
@@ -30,24 +30,22 @@ class UserableModelMixin(models.Model):
             return GroupMigration.objects.update_for_group(group=self, *args, **kwargs)
 
         @atomic
-        # @opt_generator
         def update_members(self, *args, **kwargs):
-            from vkontakte_users.models import User
 
             ids = self.__class__.remote.get_members_ids(group=self)
-            first = self.members.versions.count() == 0
+            initial = self.members.versions.count() == 0
 
-            self.members = User.remote.fetch(ids=ids, only_expired=FETCH_ONLY_EXPIRED_USERS)
+            self.members = ids
 
             # update members_count
             self.members_count = len(ids)
             self.save()
 
-            if first:
+            if initial:
                 self.members.get_query_set_through().update(time_from=None)
                 self.members.versions.update(added_count=0)
 
-            return self.members.all()
+            return True
 
     else:
         members = get_improperly_configured_field('vkontakte_users', True)
@@ -111,13 +109,13 @@ class VideoableModelMixin(models.Model):
 
 
 class ParseGroupsMixin(object):
-
     '''
     Manager mixin for parsing response with extra cache 'groups'. Used in vkontakte_wall applications
     '''
 
     def parse_response_groups(self, response_list):
-        users = Group.remote.parse_response_list(response_list.get('groups', []), {'fetched': datetime.now()})
+        from .models import Group
+        users = Group.remote.parse_response_list(response_list.get('groups', []), {'fetched': timezone.now()})
         instances = []
         for instance in users:
             instances += [Group.remote.get_or_create_from_instance(instance)]
