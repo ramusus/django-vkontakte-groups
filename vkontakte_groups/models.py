@@ -1,24 +1,15 @@
 # -*- coding: utf-8 -*-
 import logging
-import re
-from datetime import datetime
-from urllib import unquote
 
-import simplejson as json
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.db.models.query import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext as _
-from vkontakte_api import fields
 from vkontakte_api.decorators import fetch_all
-from vkontakte_api.models import (VkontakteContentError,
-                                  VkontakteDeniedAccessError, VkontakteManager,
-                                  VkontakteModel, VkontaktePKModel)
+from vkontakte_api.models import VkontakteManager, VkontakteModel, VkontaktePKModel
 
-from .mixins import (ParseGroupsMixin, PhotableModelMixin, UserableModelMixin,
-                     VideoableModelMixin)
+from .mixins import ParseGroupsMixin, PhotableModelMixin, UserableModelMixin, VideoableModelMixin
 
 log = logging.getLogger('vkontakte_groups')
 
