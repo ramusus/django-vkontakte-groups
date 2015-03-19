@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.core.exceptions import ImproperlyConfigured
 from m2m_history.fields import ManyToManyHistoryField
-from vkontakte_api.decorators import atomic, opt_generator
+from vkontakte_api.decorators import atomic
 from vkontakte_api.utils import get_improperly_configured_field
 
 
@@ -15,19 +14,6 @@ class UserableModelMixin(models.Model):
     if 'vkontakte_users' in settings.INSTALLED_APPS:
         from vkontakte_users.models import User
         members = ManyToManyHistoryField(User, related_name='members_%(class)ss', versions=True)
-
-        # deprecated. TODO: remove after completely migrating to members property
-        users = models.ManyToManyField(User)
-
-        @atomic
-        @opt_generator
-        def update_users(self, *args, **kwargs):
-            # DEPRECATED
-            if 'vkontakte_groups_migration' not in settings.INSTALLED_APPS:
-                raise ImproperlyConfigured("Application 'vkontakte_groups_migration' not in INSTALLED_APPS")
-
-            from vkontakte_groups_migration.models import GroupMigration
-            return GroupMigration.objects.update_for_group(group=self, *args, **kwargs)
 
         @atomic
         def update_members(self, *args, **kwargs):
@@ -49,8 +35,6 @@ class UserableModelMixin(models.Model):
 
     else:
         members = get_improperly_configured_field('vkontakte_users', True)
-        users = get_improperly_configured_field('vkontakte_users', True)
-        update_users = get_improperly_configured_field('vkontakte_users')
         update_members = get_improperly_configured_field('vkontakte_users')
 
 
