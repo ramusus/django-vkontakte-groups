@@ -86,12 +86,20 @@ class VkontakteGroupsTest(TestCase):
 
         @mock.patch('vkontakte_users.models.User.remote._fetch', side_effect=user_fetch_mock)
         def test_group_add_members_ids_not_users(self, fetch):
+            '''
+            Without vkontakte_users in apps fetching group members doesn't trigger fetching users
+            :param fetch:
+            :return:
+            '''
+            apps = list(settings.INSTALLED_APPS)
+            del apps[apps.index('vkontakte_users')]
 
             from vkontakte_users.models import User
             User.remote.fetch(ids=range(0, 500))
 
             group = GroupFactory(remote_id=GROUP_ID)
-            group.members = range(0, 1000)
+            with self.settings(**dict(INSTALLED_APPS=apps)):
+                group.members = range(0, 1000)
 
             self.assertEqual(group.members.count(), 500)
             self.assertEqual(group.members.get_queryset().count(), 500)

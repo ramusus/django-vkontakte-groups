@@ -32,7 +32,6 @@ class UserableModelMixin(models.Model):
                 self.members.versions.update(added_count=0)
 
             return True
-
     else:
         members = get_improperly_configured_field('vkontakte_users', True)
         update_members = get_improperly_configured_field('vkontakte_users')
