@@ -20,19 +20,21 @@ class UserableModelMixin(models.Model):
         members = ManyToManyHistoryField(User, related_name='members_%(class)ss', versions=True)
 
         @atomic
-        def update_members(self, *args, **kwargs):
+        def update_members(self, check_count=True, *args, **kwargs):
 
             ids = self.__class__.remote.get_members_ids(group=self)
             count = len(ids)
             initial = self.members.versions.count() == 0
 
-            division = float(self.members_count) / count
-            if division < 0.98 or 1.01 < division:
-                raise CheckMembersCountFailed("Suspicious ammount of members fetched. Previous value is %d, fetched "
-                                              "%d, division is %s. Group %s" % (self.members_count, count,
-                                                                                division, self))
+            # check values
+            if check_count and self.members_count and count > 0:
+                division = float(self.members_count) / count
+                if division < 0.98 or 1.01 < division:
+                    raise CheckMembersCountFailed("Suspicious ammount of members fetched. Previous value is %d, "
+                                                  "fetched %d, division is %s. Group %s" % (self.members_count, count,
+                                                                                            division, self))
 
-            self.members = ids
+            self.members = map(int, ids)
 
             # update members_count
             if self.members_count != count:
@@ -55,7 +57,7 @@ class PhotableModelMixin(models.Model):
 
     if 'vkontakte_photos' in settings.INSTALLED_APPS:
         # photoalbums = generic.GenericRelation(
-        #             Album, content_type_field='author_content_type',
+        # Album, content_type_field='author_content_type',
         #             object_id_field='author_id', verbose_name=u'Photoalbums')
         photoalbums = get_improperly_configured_field('vkontakte_photos', True)
 
@@ -86,7 +88,7 @@ class VideoableModelMixin(models.Model):
         # outputs wrong column
         # SELECT setval(pg_get_serial_sequence('"facebook_photos_album"','id'), 1, false);
         # videoalbums = generic.GenericRelation(
-        #         Album, content_type_field='owner_content_type', object_id_field='owner_id', verbose_name=u'Videoalbums')
+        # Album, content_type_field='owner_content_type', object_id_field='owner_id', verbose_name=u'Videoalbums')
         #     videos = generic.GenericRelation(
         #         Video, content_type_field='owner_content_type', object_id_field='owner_id', verbose_name=u'Videos')
 
