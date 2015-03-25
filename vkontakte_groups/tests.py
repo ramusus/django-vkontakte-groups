@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import mock
 import simplejson as json
+from datetime import date
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
@@ -8,6 +9,7 @@ from vkontakte_users.tests import user_fetch_mock
 
 from .factories import GroupFactory
 from .models import Group
+from .mixins import CheckMembersCountFailed
 
 GROUP_ID = 30221121
 GROUP_SCREEN_NAME = 'volkswagen_jm'
@@ -111,15 +113,15 @@ class VkontakteGroupsTest(TestCase):
         def test_fetch_group_members(self, fetch):
             from vkontakte_users.models import User
 
-            group = GroupFactory(remote_id=GROUP_ID)
+            group = Group.remote.fetch(ids=[GROUP_ID])[0]
 
             self.assertEqual(User.objects.count(), 0)
             self.assertEqual(group.members.versions.count(), 0)
+            self.assertGreater(group.members_count, 3100)
 
             with self.settings(**dict(VKONTAKTE_USERS_FETCH_USERS_ASYNC=False)):
                 group.update_members()
 
-            self.assertTrue(group.members_count > 3100)
             self.assertEqual(group.members_count, User.objects.count())
             self.assertEqual(group.members_count, group.members.count())
 
@@ -129,3 +131,13 @@ class VkontakteGroupsTest(TestCase):
 
             self.assertEqual(version.added_count, 0)
             self.assertEqual(version.removed_count, 0)
+
+            group.members_count = 3200
+            group.save()
+            with self.assertRaises(CheckMembersCountFailed):
+                group.update_members()
+
+            group.members_count = 3080
+            group.save()
+            with self.assertRaises(CheckMembersCountFailed):
+                group.update_members()
