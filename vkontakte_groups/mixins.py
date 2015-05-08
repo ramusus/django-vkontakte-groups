@@ -6,10 +6,6 @@ from vkontakte_api.decorators import atomic
 from vkontakte_api.utils import get_improperly_configured_field
 
 
-class CheckMembersCountFailed(Exception):
-    pass
-
-
 class UserableModelMixin(models.Model):
     class Meta:
         abstract = True
@@ -20,19 +16,11 @@ class UserableModelMixin(models.Model):
         members = ManyToManyHistoryField(User, related_name='members_%(class)ss', versions=True)
 
         @atomic
-        def update_members(self, check_count=True, *args, **kwargs):
+        def update_members(self, *args, **kwargs):
 
-            ids = self.__class__.remote.get_members_ids(group=self)
+            ids = self.__class__.remote.get_members_ids(group=self, *args, **kwargs)
             count = len(ids)
             initial = self.members.versions.count() == 0
-
-            # check values
-            if check_count and self.members_count and count > 0:
-                division = float(self.members_count) / count
-                if division < 0.98 or 1.01 < division:
-                    raise CheckMembersCountFailed("Suspicious ammount of members fetched. Previous value is %d, "
-                                                  "fetched %d, division is %s. Group %s" % (self.members_count, count,
-                                                                                            division, self))
 
             self.members = map(int, ids)
 

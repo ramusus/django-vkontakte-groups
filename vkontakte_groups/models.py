@@ -20,6 +20,10 @@ GROUP_TYPE_CHOICES = (
 )
 
 
+class CheckMembersCountFailed(Exception):
+    pass
+
+
 class GroupRemoteManager(VkontakteManager):
 
     def api_call(self, *args, **kwargs):
@@ -28,7 +32,6 @@ class GroupRemoteManager(VkontakteManager):
         return super(GroupRemoteManager, self).api_call(*args, **kwargs)
 
     def search(self, q, offset=None, count=None):
-
         kwargs = {'q': q}
         if offset:
             kwargs.update(offset=offset)
@@ -45,10 +48,43 @@ class GroupRemoteManager(VkontakteManager):
             kwargs['fields'] = 'members_count'
         return super(GroupRemoteManager, self).fetch(*args, **kwargs)
 
-    @fetch_all(always_all=True)
-    def get_members_ids(self, group, **kwargs):
+    # @fetch_all(always_all=True)
+    def get_members_ids(self, group, check_count=True, **kwargs):
+        ids = set()
+        attempts = 0
+        kwargs['offset'] = 0
         kwargs['group_id'] = group.remote_id
-        return self.api_call('get_members', **kwargs)
+
+        # check values
+        def check_members_count(count):
+            if check_count and group.members_count and count > 0:
+                division = float(group.members_count) / count
+                if division < 0.98 or 1.01 < division:
+                    raise CheckMembersCountFailed("Suspicious ammount of members fetched for group %s. "
+                                                  "Actual value is %d, fetched %d, division is %s" % (
+                        group, group.members_count, count, division))
+
+        while True:
+            ids_iteration = self.api_call('get_members', **kwargs)
+            ids_iteration_count = len(ids_iteration)
+            if ids_iteration_count == 0:
+                try:
+                    check_members_count(len(ids))
+                    break
+                except CheckMembersCountFailed, e:
+                    attempts += 1
+                    if attempts <= 5:
+                        log.warning('%s, offset %s, attempts %s' % (e, kwargs['offset'], attempts))
+                        continue
+                    else:
+                        log.error(e)
+                        raise
+            else:
+                attempts = 0
+                kwargs['offset'] += ids_iteration_count
+                [ids.add(user_id) for user_id in ids_iteration]
+
+        return ids
 
 
 @python_2_unicode_compatible

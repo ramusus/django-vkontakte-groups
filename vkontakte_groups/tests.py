@@ -6,8 +6,7 @@ from django.test import TestCase
 from vkontakte_users.tests import user_fetch_mock
 
 from .factories import GroupFactory
-from .models import Group
-from .mixins import CheckMembersCountFailed
+from .models import Group, CheckMembersCountFailed
 
 GROUP_ID = 30221121
 GROUP_SCREEN_NAME = 'volkswagen_jm'
@@ -135,7 +134,7 @@ class VkontakteGroupsTest(TestCase):
             with self.assertRaises(CheckMembersCountFailed):
                 group.update_members()
 
-            group.members_count = 3080
+            group.members_count = 3000
             group.save()
             with self.assertRaises(CheckMembersCountFailed):
                 group.update_members()
@@ -240,7 +239,7 @@ class VkontakteGroupsTest(TestCase):
                     self.assertEqual(membership(105).time_from, versions[2].time)
                     self.assertEqual(membership(105).time_to, versions[3].time)
 
-                get_members_ids.side_effect = lambda group: range(30, 100)
+                get_members_ids.side_effect = lambda group, *a, **kw: range(30, 100)
                 group.update_members(check_count=False)
                 self.assertEqual(group.members.get_queryset_through().count(), 70)
                 id0_state1()
@@ -249,7 +248,7 @@ class VkontakteGroupsTest(TestCase):
                 id90_state1()
                 id105_state1()
 
-                get_members_ids.side_effect = lambda group: range(0, 50)
+                get_members_ids.side_effect = lambda group, *a, **kw: range(0, 50)
                 group.update_members(check_count=False)
                 state_time2 = group.members.last_update_time()
                 self.assertEqual(group.members.get_queryset_through().count(), 100)
@@ -259,7 +258,7 @@ class VkontakteGroupsTest(TestCase):
                 id90_state2()
                 id105_state2()
 
-                get_members_ids.side_effect = lambda group: range(30, 110)
+                get_members_ids.side_effect = lambda group, *a, **kw: range(30, 110)
                 group.update_members(check_count=False)
                 state_time3 = group.members.last_update_time()
                 self.assertEqual(group.members.get_queryset_through().count(), 160)
@@ -269,7 +268,7 @@ class VkontakteGroupsTest(TestCase):
                 id90_state3()
                 id105_state3()
 
-                get_members_ids.side_effect = lambda group: range(15, 100)
+                get_members_ids.side_effect = lambda group, *a, **kw: range(15, 100)
                 group.update_members(check_count=False)
                 state_time4 = group.members.last_update_time()
                 self.assertEqual(group.members.get_queryset_through().count(), 175)
