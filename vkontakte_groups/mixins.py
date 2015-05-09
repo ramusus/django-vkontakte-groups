@@ -22,7 +22,7 @@ class UserableModelMixin(models.Model):
             count = len(ids)
             initial = self.members.versions.count() == 0
 
-            self.members = map(int, ids)
+            self.members = ids
 
             # update members_count
             if self.members_count != count:

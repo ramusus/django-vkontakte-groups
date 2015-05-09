@@ -59,17 +59,20 @@ class GroupRemoteManager(VkontakteManager):
         def check_members_count(count):
             if check_count and group.members_count and count > 0:
                 division = float(group.members_count) / count
-                if division < 0.98 or 1.01 < division:
+                if 0.98 > division or 1.01 < division:
                     raise CheckMembersCountFailed("Suspicious ammount of members fetched for group %s. "
-                                                  "Actual value is %d, fetched %d, division is %s" % (
+                                                  "Actual ammount is %d, fetched %d, division is %s" % (
                         group, group.members_count, count, division))
 
         while True:
             ids_iteration = self.api_call('get_members', **kwargs)
             ids_iteration_count = len(ids_iteration)
+            ids_count = len(ids)
+            log.debug('Get members of group %s. Got %s, total %s, actual ammount %s, offset' % (
+                group, ids_iteration_count, ids_count, group.members_count, kwargs['offset']))
             if ids_iteration_count == 0:
                 try:
-                    check_members_count(len(ids))
+                    check_members_count(ids_count)
                     break
                 except CheckMembersCountFailed, e:
                     attempts += 1
@@ -81,10 +84,10 @@ class GroupRemoteManager(VkontakteManager):
                         raise
             else:
                 attempts = 0
+                [ids.add(int(user_id)) for user_id in ids_iteration]
                 kwargs['offset'] += ids_iteration_count
-                [ids.add(user_id) for user_id in ids_iteration]
 
-        return ids
+        return list(ids)
 
 
 @python_2_unicode_compatible
