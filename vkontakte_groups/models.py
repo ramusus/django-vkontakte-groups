@@ -68,7 +68,7 @@ class GroupRemoteManager(VkontakteManager):
             ids_iteration = self.api_call('get_members', **kwargs)
             ids_iteration_count = len(ids_iteration)
             ids_count = len(ids)
-            log.debug('Get members of group %s. Got %s, total %s, actual ammount %s, offset' % (
+            log.debug('Get members of group %s. Got %s, total %s, actual ammount %s, offset %s' % (
                 group, ids_iteration_count, ids_count, group.members_count, kwargs['offset']))
             if ids_iteration_count == 0:
                 try:
