@@ -2,8 +2,8 @@
 import mock
 import simplejson as json
 from django.conf import settings
-from django.test import TestCase
 from vkontakte_users.tests import user_fetch_mock
+from vkontakte_api.tests import VkontakteApiTestCase
 
 from .factories import GroupFactory
 from .models import Group, CheckMembersCountFailed
@@ -13,7 +13,7 @@ GROUP_SCREEN_NAME = 'volkswagen_jm'
 GROUP_NAME = 'Volkswagen'
 
 
-class VkontakteGroupsTest(TestCase):
+class VkontakteGroupsTest(VkontakteApiTestCase):
     def test_refresh_group(self):
 
         instance = Group.remote.fetch(ids=[GROUP_ID])[0]
@@ -38,7 +38,7 @@ class VkontakteGroupsTest(TestCase):
 
     def test_parse_group(self):
 
-        response = '''
+        response = """
             {"response":[{"id":1,"name":"ВКонтакте API","screen_name":"apiclub","is_closed":0,
                 "is_admin":1,"type":"group","photo":"http://cs400.vkontakte.ru/g00001/e_5ba03323.jpg",
                 "photo_medium":"http://cs400.vkontakte.ru/g00001/d_7bfe2183.jpg",
@@ -48,7 +48,7 @@ class VkontakteGroupsTest(TestCase):
                 "photo":"http://cs39.vkontakte.ru/g00045/c_5a38eec.jpg",
                 "photo_medium":"http://cs39.vkontakte.ru/g00045/b_5a38eec.jpg",
                 "photo_big":"http://cs39.vkontakte.ru/g00045/a_5a38eec.jpg"}]}
-            '''
+            """
         instance = Group()
         instance.parse(json.loads(response)['response'][0])
         instance.save()
@@ -84,11 +84,11 @@ class VkontakteGroupsTest(TestCase):
 
         @mock.patch('vkontakte_users.models.User.remote._fetch', side_effect=user_fetch_mock)
         def test_group_add_members_ids_not_users(self, fetch):
-            '''
+            """
             Without vkontakte_users in apps fetching group members doesn't trigger fetching users
             :param fetch:
             :return:
-            '''
+            """
             apps = list(settings.INSTALLED_APPS)
             del apps[apps.index('vkontakte_users')]
 
@@ -97,7 +97,7 @@ class VkontakteGroupsTest(TestCase):
             User.remote.fetch(ids=range(0, 500))
 
             group = GroupFactory(remote_id=GROUP_ID)
-            with self.settings(**dict(INSTALLED_APPS=apps)):
+            with self.settings(INSTALLED_APPS=apps):
                 group.members = range(0, 1000)
 
             self.assertEqual(group.members.count(), 500)
@@ -114,9 +114,9 @@ class VkontakteGroupsTest(TestCase):
 
             self.assertEqual(User.objects.count(), 0)
             self.assertEqual(group.members.versions.count(), 0)
-            self.assertGreater(group.members_count, 3100)
+            self.assertGreater(group.members_count, 3000)
 
-            with self.settings(**dict(VKONTAKTE_USERS_FETCH_USERS_ASYNC=False)):
+            with self.settings(**{'VKONTAKTE_USERS_FETCH_USERS_ASYNC': False}):
                 group.update_members()
 
             self.assertEqual(group.members_count, User.objects.count())
@@ -134,7 +134,7 @@ class VkontakteGroupsTest(TestCase):
             with self.assertRaises(CheckMembersCountFailed):
                 group.update_members()
 
-            group.members_count = 3000
+            group.members_count = 2500
             group.save()
             with self.assertRaises(CheckMembersCountFailed):
                 group.update_members()
@@ -144,7 +144,7 @@ class VkontakteGroupsTest(TestCase):
 
             apps = list(settings.INSTALLED_APPS)
             del apps[apps.index('vkontakte_users')]
-            with self.settings(**dict(INSTALLED_APPS=apps)):
+            with self.settings(**{'INSTALLED_APPS': apps}):
 
                 group = GroupFactory(remote_id=GROUP_ID)
 
