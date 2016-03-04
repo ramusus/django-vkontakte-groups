@@ -1,4 +1,4 @@
 INSTALLED_APPS = (
-    'vkontakte_api',
+    'vkontakte_users',
 )
 SOCIAL_API_TOKENS_STORAGES = []

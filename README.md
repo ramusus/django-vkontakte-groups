@@ -14,9 +14,6 @@ Django Vkontakte Groups
 
     INSTALLED_APPS = (
         ...
-        'oauth_tokens',
-        'taggit',
-        'vkontakte_api',
         'vkontakte_groups',
     )
 
