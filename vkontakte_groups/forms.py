@@ -10,7 +10,7 @@ class GroupImportForm(forms.Form):
     def clean_group_url(self):
         try:
             return Group.remote.get_by_url(self.cleaned_data['group_url'])
-        except ValueError, e:
+        except ValueError as e:
             raise forms.ValidationError(e)
 
     def save(self):

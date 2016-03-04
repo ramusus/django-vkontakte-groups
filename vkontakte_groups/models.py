@@ -75,7 +75,7 @@ class GroupRemoteManager(VkontakteManager):
                 try:
                     check_members_count(ids_count)
                     break
-                except CheckMembersCountFailed, e:
+                except CheckMembersCountFailed as e:
                     attempts += 1
                     if attempts <= 5:
                         log.warning('%s, offset %s, attempts %s' % (e, kwargs['offset'], attempts))
