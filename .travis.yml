@@ -17,6 +17,7 @@ install:
   - pip install simplejson
   - pip install factory_boy
   - pip install coveralls
+  - pip install django-vkontakte-users
   - pip install .
 script:
   - django-admin.py --version
