@@ -80,6 +80,14 @@ class VkontakteGroupsTest(VkontakteApiTestCase):
     #     except ImproperlyConfigured, e:
     #         pass
 
+    def test_get_group_members_ids(self):
+
+        group = Group.remote.fetch(ids=[GROUP_ID])[0]
+        ids = Group.remote.get_members_ids(group=group)
+
+        self.assertGreater(len(ids), 3000)
+        self.assertLess(len(ids), 3100)
+
     if 'vkontakte_users' in settings.INSTALLED_APPS:
 
         @mock.patch('vkontakte_users.models.User.remote._fetch', side_effect=user_fetch_mock)
@@ -115,6 +123,7 @@ class VkontakteGroupsTest(VkontakteApiTestCase):
             self.assertEqual(User.objects.count(), 0)
             self.assertEqual(group.members.versions.count(), 0)
             self.assertGreater(group.members_count, 3000)
+            self.assertLess(group.members_count, 3100)
 
             with self.settings(**{'VKONTAKTE_USERS_FETCH_USERS_ASYNC': False}):
                 group.update_members()
@@ -134,7 +143,7 @@ class VkontakteGroupsTest(VkontakteApiTestCase):
             with self.assertRaises(CheckMembersCountFailed):
                 group.update_members()
 
-            group.members_count = 2500
+            group.members_count = 2900
             group.save()
             with self.assertRaises(CheckMembersCountFailed):
                 group.update_members()

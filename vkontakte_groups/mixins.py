@@ -12,7 +12,6 @@ class UserableModelMixin(models.Model):
 
     if 'vkontakte_users' in settings.INSTALLED_APPS:
         from vkontakte_users.models import User
-
         members = ManyToManyHistoryField(User, related_name='members_%(class)ss', versions=True)
 
         @atomic
@@ -44,9 +43,9 @@ class PhotableModelMixin(models.Model):
         abstract = True
 
     if 'vkontakte_photos' in settings.INSTALLED_APPS:
-        # photoalbums = generic.GenericRelation(
-        # Album, content_type_field='author_content_type',
-        #             object_id_field='author_id', verbose_name=u'Photoalbums')
+        # from vkontakte_photos.models import Album, generic
+        # photoalbums = generic.GenericRelation(Album, content_type_field='author_content_type',
+        #                                       object_id_field='author_id', verbose_name=u'Photoalbums')
         photoalbums = get_improperly_configured_field('vkontakte_photos', True)
 
         def photos(self):
