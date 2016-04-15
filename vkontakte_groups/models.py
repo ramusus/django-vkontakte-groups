@@ -10,12 +10,6 @@ from vkontakte_api.models import VkontakteManager, VkontaktePKModel
 
 from .mixins import ParseGroupsMixin, PhotableModelMixin, UserableModelMixin, VideoableModelMixin
 
-if 'field_history' in settings.INSTALLED_APPS:
-    from field_history.tracker import FieldHistoryTracker
-    using_field_history = True
-else:
-    using_field_history = False
-
 log = logging.getLogger('vkontakte_groups')
 
 GROUP_TYPE_CHOICES = (
@@ -119,9 +113,6 @@ class Group(PhotableModelMixin, VideoableModelMixin, UserableModelMixin, Vkontak
         'search': 'search',
         'get_members': 'getMembers',
     })
-
-    if using_field_history:
-        field_history = FieldHistoryTracker(['members_count'])
 
     class Meta:
         verbose_name = _('Vkontakte group')
